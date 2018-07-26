@@ -41,6 +41,8 @@ const int distanceFor90DegTurns = 0.25 * PI * distanceBetweenWheels;
 
 // wall detection, course correction, and exit conditions
 const int wallThreshold = 39; // cm
+int turnMaxDistToWall = 14; // cm 
+int turnMinDistToWall = 12; // cm 
 
 // navigation 
 float distLeft; 
@@ -254,10 +256,12 @@ void smallTurnRight(int powerLeft, int powerRight) {
 
 void turn90DegLeft(int power) { 
   driveStraight(distanceFor90DegTurns, power, 'L');
+  courseCorrect(turnMaxDistToWall, turnMinDistToWall);
 }
 
 void turn90DegRight(int power) {
   driveStraight(distanceFor90DegTurns, power, 'R'); 
+  courseCorrect(turnMaxDistToWall, turnMinDistToWall);
 }
 
 void stopMotors() {
