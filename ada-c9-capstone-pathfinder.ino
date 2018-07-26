@@ -88,3 +88,12 @@ void turnRight(int powerLeft, int powerRight) {
   moveLeftForward(powerLeft); 
   moveRightBackward(powerRight);
 } 
+
+void stopMotors() {
+  digitalWrite(lb, LOW); 
+  digitalWrite(lf, LOW); 
+  digitalWrite(rb, LOW); 
+  digitalWrite(rf, LOW); 
+  analogWrite(leftSpeedPin, 0); 
+  analogWrite(rightSpeedPin, 0);  
+}
