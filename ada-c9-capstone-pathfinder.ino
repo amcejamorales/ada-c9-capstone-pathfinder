@@ -27,6 +27,7 @@ const int leftSpeedPin = 5;
 const int rightSpeedPin = 6;
 
 // speed regulation 
+const int speed = 180; 
 const int courseCorrectSpeed = 130; 
 
 // straight driving 
@@ -40,16 +41,23 @@ const int distanceBetweenWheels = 15; // cm
 const int distanceFor90DegTurns = 0.25 * PI * distanceBetweenWheels;
 
 // wall detection, course correction, and exit conditions
-const int wallThreshold = 39; // cm
+const int wallThreshold = 39; // cm 
+int maxDistToWall = 16; // cm 
+int minDistToWall = 14; // cm 
 int turnMaxDistToWall = 14; // cm 
 int turnMinDistToWall = 12; // cm 
+int consecutiveLeftOpenings; 
+int consecutiveRightOpenings;
+float stoppingDistance = 13; // cm 
 
 // navigation 
 float distLeft; 
 float distRight;
+float travelDistance = 6.5; 
+float distanceTravelled = 0.0;
 
 void setup() {
-    Serial.begin(9600);
+  Serial.begin(9600);
     
   // set up ultrasonic sensor pins 
   pinMode(inputPin, INPUT); 
@@ -121,6 +129,46 @@ float detectRight() {
 /*
  * navigation 
 */
+
+// drive straight until the wall ahead is reached 
+// stop if there are four consecutive openings on the left AND right
+// return distance travelled
+float driveStraightAndCourseCorrect(int power) { 
+  float forward = detectForward();
+  float totalDistance = 0.0;   
+  
+  while (forward >= stoppingDistance) {
+    forward = detectForward(); 
+    if (consecutiveLeftOpenings == 4 && consecutiveRightOpenings == 4) {
+      Serial.println(F("You've stopped driving because you've left the maze!")); 
+      break;
+    } else if (consecutiveLeftOpenings == 3 || consecutiveRightOpenings == 3) {
+      forward = detectForward();
+      break;
+    }
+    
+    driveStraight(travelDistance, speed, 'F'); 
+    stopMotors(); 
+    courseCorrect(maxDistToWall, minDistToWall); 
+
+    if (distLeft > wallThreshold) {
+      consecutiveLeftOpenings++;
+    } else {
+      consecutiveLeftOpenings = 0;
+    }
+
+    if (distRight > wallThreshold) {
+      consecutiveRightOpenings++;
+    } else {
+      consecutiveRightOpenings = 0;
+    }
+    
+    forward = detectForward(); 
+    totalDistance += travelDistance; 
+    distanceTravelled += travelDistance;  
+  }
+  return totalDistance; 
+}
 
 // drive straight a given distance, with a specified 'speed' (power) and in a specified direction 
 // function adapted from SparkFun Electronics Fred Bot tutorial 
