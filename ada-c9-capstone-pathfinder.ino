@@ -339,6 +339,7 @@ float driveStraightAndCourseCorrect(int power) {
       Serial.println(F("You've stopped driving because you've left the maze!")); 
       break;
     } else if (consecutiveLeftOpenings == 3 || consecutiveRightOpenings == 3) {
+      createNodeAndSearchThroughGraph(totalDistance);
       forward = detectForward();
       break;
     }
