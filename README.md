@@ -1,6 +1,6 @@
 # ada-c9-capstone-pathfinder 
 
-###Parts 
+### Parts 
 All parts, except for extras like batteries, screwdrivers, and tape were put together using this kit: https://www.amazon.com/gp/product/B01CXVA6IO/ref=oh_aui_detailpage_o02_s00?ie=UTF8&psc=1
 - Arduino Uno or Mega 2560 board (Mega is preferred for higher memory storage). 
 - L298N Motor Driver 
