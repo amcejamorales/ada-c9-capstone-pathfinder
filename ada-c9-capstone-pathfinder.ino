@@ -89,6 +89,18 @@ void turnRight(int powerLeft, int powerRight) {
   moveRightBackward(powerRight);
 } 
 
+void smallTurnLeft(int powerLeft, int powerRight) { 
+  turnLeft(powerLeft, powerRight); 
+  delay(100); 
+  stopMotors();
+}
+
+void smallTurnRight(int powerLeft, int powerRight) {
+  turnRight(powerLeft, powerRight); 
+  delay(100); 
+  stopMotors();
+}
+
 void stopMotors() {
   digitalWrite(lb, LOW); 
   digitalWrite(lf, LOW); 
