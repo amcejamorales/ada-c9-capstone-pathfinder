@@ -26,6 +26,9 @@ const int rf = A4;
 const int leftSpeedPin = 5;
 const int rightSpeedPin = 6;
 
+// speed regulation 
+const int courseCorrectSpeed = 130; 
+
 // straight driving 
 const int motorOffset = 1;  
 const int ticksPerRev = 80; 
@@ -35,6 +38,13 @@ const float wheelCircumference = wheelDiameter * PI;
 // exact degree turning 
 const int distanceBetweenWheels = 15; // cm  
 const int distanceFor90DegTurns = 0.25 * PI * distanceBetweenWheels;
+
+// wall detection, course correction, and exit conditions
+const int wallThreshold = 39; // cm
+
+// navigation 
+float distLeft; 
+float distRight;
 
 void setup() {
     Serial.begin(9600);
@@ -257,6 +267,37 @@ void stopMotors() {
   digitalWrite(rf, LOW); 
   analogWrite(leftSpeedPin, 0); 
   analogWrite(rightSpeedPin, 0);  
+}
+
+// correct course based on distance to left and right barriers 
+void courseCorrect(int maximum, int minimum) {
+  distLeft = detectLeft(); 
+  distRight = detectRight(); 
+  float diff = abs(distLeft - distRight);
+  if (distLeft <= wallThreshold and distRight > wallThreshold) { 
+    if (distLeft < minimum) {
+      smallTurnRight(courseCorrectSpeed, courseCorrectSpeed); 
+    } else if (distLeft > maximum) {  
+      smallTurnLeft(courseCorrectSpeed, courseCorrectSpeed); 
+    }
+    courseCorrect(maximum, minimum);
+  } else if (distRight <= wallThreshold and distLeft > wallThreshold) {
+    if (distRight < minimum) {
+      smallTurnLeft(courseCorrectSpeed, courseCorrectSpeed); 
+    } else if (distRight > maximum) {
+      smallTurnRight(courseCorrectSpeed, courseCorrectSpeed); 
+    }
+    courseCorrect(maximum, minimum);
+  } else if (distLeft <= wallThreshold and distRight <= wallThreshold) {
+    if (diff > 2) {
+      if (distLeft > distRight) {
+        smallTurnLeft(courseCorrectSpeed, courseCorrectSpeed);
+      } else if (distRight > distLeft) {
+        smallTurnRight(courseCorrectSpeed, courseCorrectSpeed); 
+      }
+    }
+    courseCorrect(maximum, minimum);
+  }
 }
 
 
