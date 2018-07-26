@@ -149,7 +149,8 @@ void dfs(Graph & g) {
     Serial.println(F("----------------------------"));
 
     // backtrack to the first previous node in the graph that has an alternative opening 
-    Node *secondMostRecentNode = g.nodes[g.nodes.size() - 2];
+    Node *secondMostRecentNode = g.nodes[g.nodes.size() - 2]; 
+    findPreviousOpening(g, secondMostRecentNode, mostRecentNode);
   } else { 
     float dist; 
     if (openings[0] == 'F') {
@@ -170,6 +171,88 @@ void dfs(Graph & g) {
     }
   }  
 } 
+
+// find the first previous node in the graph that has an alternative opening
+void findPreviousOpening(Graph & g, Node *start, Node *finish) {
+  Arc *arcStartToFinish; 
+  for (int i = 0; i < g.arcs.size(); i++) {
+    Arc *currentArc = g.arcs[i]; 
+    if (currentArc->start->order == start->order and currentArc->finish->order == finish->order) {
+      arcStartToFinish = currentArc; 
+    }
+  } 
+
+  Vector<Arc *> outGoingArcs; 
+  for (int i = 0; i < start->arcs.size(); i++) {
+    if (start->order == start->arcs[i]->start->order) {
+      outGoingArcs.add(start->arcs[i]);
+    }
+  }
+ 
+  Vector<char> availableOpenings; 
+  for(int i = 0; i < start->openings.size(); i++) {
+    char availableOpening = start->openings[i]; 
+    bool availableOpeningVisited = false;
+    for(int j = 0; j < outGoingArcs.size(); j++) { 
+      if (availableOpening == outGoingArcs[j]->direction) { 
+        availableOpeningVisited = true;
+      }
+    }
+    if (!availableOpeningVisited) { availableOpenings.add(availableOpening); }
+  }
+
+  float distBtwNodes = arcStartToFinish->distanceBetweenNodes; 
+
+  if (arcStartToFinish->direction == 'F') {
+    driveBackward(distBtwNodes, speed);
+  } else if(arcStartToFinish->direction == 'L') {
+    driveBackward(distBtwNodes, speed);
+    turn90DegRight(turnSpeed);
+  } else if(arcStartToFinish->direction == 'R') {
+    driveBackward(distBtwNodes, speed);
+    turn90DegLeft(turnSpeed);
+  }
+
+    Vector <Node *> upstreamNeighbors; 
+    for(int k = 0; k < start->arcs.size(); k++) {  
+      Arc *arc = start->arcs[k]; 
+      if(arc->finish->order == start->order) {
+        upstreamNeighbors.add(arc->start);
+      }
+    }
+  
+  if(availableOpenings.size() == 0) { 
+    // if there are no available alternative openings, go back yet another node 
+    findPreviousOpening(g, upstreamNeighbors[0], start);
+  } else {
+    float startingDistance = g.nodes[g.nodes.size() - 1]->distanceTravelled; 
+    float finishingDistance = start->distanceTravelled; 
+    float distDifference = abs(startingDistance - finishingDistance); 
+    addArc(g, g.nodes[g.nodes.size() - 1], start, currentRelativeDirection, distDifference); 
+
+    float dist; 
+    
+    if (availableOpenings[0] == 'F') {
+      currentRelativeDirection = 'F'; 
+      dist = driveStraightAndCourseCorrect(speed);
+    } else if (availableOpenings[0] == 'L') {
+      currentRelativeDirection = 'L'; 
+      turn90DegLeft(turnSpeed); 
+      dist = driveStraightAndCourseCorrect(speed);
+    } else if (availableOpenings[0] == 'R') {
+      currentRelativeDirection = 'R';  
+      turn90DegRight(turnSpeed);
+      dist = driveStraightAndCourseCorrect(speed);
+    }
+    
+    Node *currentNode = g.arcs[g.arcs.size() - 1]->finish;
+    if (distanceTravelled > currentNode->distanceTravelled) {
+      createNodeAndSearchThroughGraph(dist);
+    }
+  }
+} 
+
+// end graph functions 
 
 /*
  * sensing / wall detection  
