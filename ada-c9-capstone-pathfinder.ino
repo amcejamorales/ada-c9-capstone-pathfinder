@@ -28,6 +28,7 @@ const int rightSpeedPin = 6;
 
 // speed regulation 
 const int speed = 180; 
+const int turnSpeed = 150; 
 const int courseCorrectSpeed = 130; 
 
 // straight driving 
@@ -128,8 +129,46 @@ void createNodeAndSearchThroughGraph(float dist) {
     // deflate consecutive left and right 'openings' after a node is made 
     // to not confuse an opening left or right of the node with the occurrence of a new node 
     consecutiveLeftOpenings = -2; 
-    consecutiveRightOpenings = -2;   
+    consecutiveRightOpenings = -2;  
+
+    dfs(newGraph);
   }
+} 
+
+// search through graph to determine whether to keep going or whether exit is reached
+void dfs(Graph & g) {
+  Node *mostRecentNode = g.nodes[g.nodes.size() - 1];
+  Vector<float> distancesToWalls = mostRecentNode->distancesToWalls; 
+  Vector<char> openings = mostRecentNode->openings;
+    
+  if (openings.size() == 3) {
+      Serial.println(F("Openings Forwards, Left, and Right."));
+  } else if (openings.size() == 0) {
+    Serial.println(F("----------------------------"));
+    Serial.println(F("HIT A DEAD END"));
+    Serial.println(F("----------------------------"));
+
+    // backtrack to the first previous node in the graph that has an alternative opening 
+    Node *secondMostRecentNode = g.nodes[g.nodes.size() - 2];
+  } else { 
+    float dist; 
+    if (openings[0] == 'F') {
+      currentRelativeDirection = 'F'; 
+      dist = driveStraightAndCourseCorrect(speed); 
+    } else if (openings[0] == 'L') {
+      currentRelativeDirection = 'L'; 
+      turn90DegLeft(turnSpeed); 
+      dist = driveStraightAndCourseCorrect(speed); 
+    } else if (openings[0] == 'R') {
+      currentRelativeDirection = 'R'; 
+      turn90DegRight(turnSpeed);
+      dist = driveStraightAndCourseCorrect(speed);
+    } 
+    Node *lastNode = g.nodes[g.nodes.size() - 1]; 
+    if (distanceTravelled > lastNode->distanceTravelled) {
+      createNodeAndSearchThroughGraph(dist);
+    }
+  }  
 } 
 
 /*
