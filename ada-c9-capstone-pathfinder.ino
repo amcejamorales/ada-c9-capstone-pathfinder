@@ -47,7 +47,9 @@ int minDistToWall = 14; // cm
 int turnMaxDistToWall = 14; // cm 
 int turnMinDistToWall = 12; // cm 
 int consecutiveLeftOpenings; 
-int consecutiveRightOpenings;
+int consecutiveRightOpenings; 
+int openFieldCount = 0; 
+const int maxOpenFieldCount = 1; 
 float stoppingDistance = 13; // cm 
 
 // navigation 
@@ -55,6 +57,10 @@ float distLeft;
 float distRight;
 float travelDistance = 6.5; 
 float distanceTravelled = 0.0;
+char currentRelativeDirection = 'F'; 
+
+// graph setup 
+Graph newGraph; 
 
 void setup() {
   Serial.begin(9600);
@@ -82,6 +88,49 @@ void setup() {
 void loop() {
   
 }
+
+/*
+ * Graph Functions 
+*/
+
+// create nodes and arcs (if appropriate) at important points in the maze 
+void createNodeAndSearchThroughGraph(float dist) { 
+  Vector<float> distancesToWalls; 
+  scanEnvironment(&distancesToWalls);
+
+  Vector<char> openings; 
+  if (distancesToWalls[0] > wallThreshold) { openings.add('F'); }
+  if (distancesToWalls[1] > wallThreshold) { openings.add('L'); }
+  if (distancesToWalls[2] > wallThreshold) { openings.add('R'); }
+
+  // create node 
+  addNode(newGraph, newGraph.nodes.size() + 1, distancesToWalls, openings, distanceTravelled); 
+
+  // create arc from previous node to current node unless there is no previous node 
+  if (newGraph.nodes.size() > 1) {
+    Arc *lastArc = newGraph.arcs[newGraph.arcs.size() - 1]; 
+    
+    Node *previousNode; 
+    if (newGraph.arcs.size() == 0) {
+      previousNode = newGraph.nodes[newGraph.nodes.size() - 2]; 
+    } else {
+      previousNode = lastArc->finish;  
+    } 
+    
+    Node *currentNode = newGraph.nodes[newGraph.nodes.size() - 1]; 
+    
+    addArc(newGraph, previousNode, currentNode, currentRelativeDirection, dist);
+  } 
+    
+  if (openFieldCount >= maxOpenFieldCount) {
+    Serial.println(F("You've exited the maze!")); 
+  } else {  
+    // deflate consecutive left and right 'openings' after a node is made 
+    // to not confuse an opening left or right of the node with the occurrence of a new node 
+    consecutiveLeftOpenings = -2; 
+    consecutiveRightOpenings = -2;   
+  }
+} 
 
 /*
  * sensing / wall detection  
