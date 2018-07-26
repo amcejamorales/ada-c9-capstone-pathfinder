@@ -27,7 +27,24 @@ const int leftSpeedPin = 5;
 const int rightSpeedPin = 6;
 
 void setup() {
-  
+    Serial.begin(9600);
+    
+  // set up ultrasonic sensor pins 
+  pinMode(inputPin, INPUT); 
+  pinMode(outputPin, OUTPUT); 
+
+  // dc motors 
+  pinMode(lb, OUTPUT); 
+  pinMode(lf, OUTPUT); 
+  pinMode(rb, OUTPUT); 
+  pinMode(rf, OUTPUT);
+  pinMode(leftSpeedPin, OUTPUT);
+  pinMode(rightSpeedPin, OUTPUT);
+
+  // encoders 
+  pinMode(encPinLeft, INPUT_PULLUP); 
+  pinMode(encPinRight, INPUT_PULLUP); 
+
 }
 
 void loop() {
