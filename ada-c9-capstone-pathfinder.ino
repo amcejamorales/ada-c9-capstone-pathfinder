@@ -32,6 +32,10 @@ const int ticksPerRev = 80;
 const float wheelDiameter = 65; // mm
 const float wheelCircumference = wheelDiameter * PI; 
 
+// exact degree turning 
+const int distanceBetweenWheels = 15; // cm  
+const int distanceFor90DegTurns = 0.25 * PI * distanceBetweenWheels;
+
 void setup() {
     Serial.begin(9600);
     
@@ -57,6 +61,49 @@ void setup() {
 
 void loop() {
   
+}
+
+/*
+ * sensing / wall detection  
+*/
+ 
+void turnServo(int deg) {
+  robotServo.attach(servoPin); 
+  robotServo.write(deg);
+  delay(500);
+  robotServo.detach();
+}
+
+float detectDistance() {
+  digitalWrite(outputPin, LOW); 
+  delayMicroseconds(2); 
+  digitalWrite(outputPin, HIGH); 
+  delayMicroseconds(10); 
+  digitalWrite(outputPin, LOW); 
+  float dist_to_wall = pulseIn(inputPin, HIGH); 
+  dist_to_wall = dist_to_wall/5.8/10; 
+  return dist_to_wall; 
+}
+
+float detectForward() {
+  turnServo(90); 
+  float distance_forward = detectDistance(); 
+  delay(20); 
+  return distance_forward; 
+}
+
+float detectLeft() {
+  turnServo(180); 
+  float distance_left = detectDistance(); 
+  delay(20); 
+  return distance_left; 
+}
+
+float detectRight() {
+  turnServo(0); 
+  float distance_right = detectDistance();
+  delay(20); 
+  return distance_right; 
 }
 
 /*
@@ -195,6 +242,14 @@ void smallTurnRight(int powerLeft, int powerRight) {
   stopMotors();
 }
 
+void turn90DegLeft(int power) { 
+  driveStraight(distanceFor90DegTurns, power, 'L');
+}
+
+void turn90DegRight(int power) {
+  driveStraight(distanceFor90DegTurns, power, 'R'); 
+}
+
 void stopMotors() {
   digitalWrite(lb, LOW); 
   digitalWrite(lf, LOW); 
@@ -203,3 +258,5 @@ void stopMotors() {
   analogWrite(leftSpeedPin, 0); 
   analogWrite(rightSpeedPin, 0);  
 }
+
+
