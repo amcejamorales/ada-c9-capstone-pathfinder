@@ -78,3 +78,13 @@ void moveRightBackward(int power) {
   digitalWrite(rf, HIGH);
   analogWrite(rightSpeedPin, abs(power));
 } 
+
+void turnLeft(int powerLeft, int powerRight) { 
+  moveLeftBackward(powerLeft);
+  moveRightForward(powerRight); 
+}
+
+void turnRight(int powerLeft, int powerRight) {
+  moveLeftForward(powerLeft); 
+  moveRightBackward(powerRight);
+} 
