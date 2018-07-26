@@ -86,6 +86,19 @@ void loop() {
 /*
  * sensing / wall detection  
 */
+
+// sense presence or absence of a wall forwards, left, and right 
+void scanEnvironment(Vector<float> *distances) {
+  float forward = detectForward(); 
+  float left = detectLeft(); 
+  float right = detectRight();
+
+  turnServo(90); 
+
+  distances->add(forward);
+  distances->add(left);
+  distances->add(right);
+} 
  
 void turnServo(int deg) {
   robotServo.attach(servoPin); 
@@ -129,7 +142,6 @@ float detectRight() {
 /*
  * navigation 
 */
-
 
 // drive straight backward a specified distance and correct course at each interval 
 void driveBackward(float dist, int power) { 
