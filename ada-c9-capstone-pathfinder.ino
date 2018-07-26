@@ -51,3 +51,30 @@ void loop() {
   
 }
 
+void moveLeftForward(int power) {
+  power = constrain(power, -255, 255);
+  digitalWrite(lb, HIGH);
+  digitalWrite(lf, LOW);
+  analogWrite(leftSpeedPin, abs(power));
+}
+
+void moveRightForward(int power) {
+  power = constrain(power, -255, 255);
+  digitalWrite(rb, HIGH);
+  digitalWrite(rf, LOW);
+  analogWrite(rightSpeedPin, abs(power));
+}
+
+void moveLeftBackward(int power) {
+  power = constrain(power, -255, 255);
+  digitalWrite(lb, LOW);
+  digitalWrite(lf, HIGH);
+  analogWrite(leftSpeedPin, abs(power));
+} 
+
+void moveRightBackward(int power) {
+  power = constrain(power, -255, 255);
+  digitalWrite(rb, LOW);
+  digitalWrite(rf, HIGH);
+  analogWrite(rightSpeedPin, abs(power));
+} 
