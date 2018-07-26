@@ -130,6 +130,19 @@ float detectRight() {
  * navigation 
 */
 
+
+// drive straight backward a specified distance and correct course at each interval 
+void driveBackward(float dist, int power) { 
+  courseCorrect(turnMaxDistToWall, turnMinDistToWall);
+  while (dist >= 0) { 
+    driveStraight(travelDistance, power, 'B'); 
+    stopMotors(); 
+    courseCorrect(maxDistToWall, minDistToWall); 
+    dist -= travelDistance; 
+    distanceTravelled -= travelDistance;
+  }
+}
+
 // drive straight until the wall ahead is reached 
 // stop if there are four consecutive openings on the left AND right
 // return distance travelled
